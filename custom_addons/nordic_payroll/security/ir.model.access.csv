@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_nordic_salary_rule,nordic.salary.rule,model_nordic_salary_rule,base.group_user,1,1,1,1
+access_nordic_payroll_structure,nordic.payroll.structure,model_nordic_payroll_structure,base.group_user,1,1,1,1
+access_nordic_payslip,nordic.payslip,model_nordic_payslip,base.group_user,1,1,1,1
+access_nordic_payslip_line,nordic.payslip.line,model_nordic_payslip_line,base.group_user,1,1,1,1

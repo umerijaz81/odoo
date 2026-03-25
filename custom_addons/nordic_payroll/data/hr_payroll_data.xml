@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- New Nordic Salary Rules using my custom engine -->
+        
+        <record id="rule_basic_pay" model="nordic.salary.rule">
+            <field name="name">Basic Salary</field>
+            <field name="code">BASIC</field>
+            <field name="category">BASIC</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">50000.0</field> <!-- Placeholder -->
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="rule_income_tax" model="nordic.salary.rule">
+            <field name="name">Income Tax (Skatt)</field>
+            <field name="code">TAX</field>
+            <field name="category">DED</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">-15000.0</field> <!-- Placeholder -->
+            <field name="sequence" eval="100"/>
+        </record>
+
+        <record id="structure_nordic_base" model="nordic.payroll.structure">
+            <field name="name">Nordic Base Structure</field>
+            <field name="rule_ids" eval="[(6, 0, [ref('rule_basic_pay'), ref('rule_income_tax')])]"/>
+        </record>
+    </data>
+</odoo>
