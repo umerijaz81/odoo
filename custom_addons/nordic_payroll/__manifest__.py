@@ -2,23 +2,24 @@
 {
     'name': "Nordic Payroll Localization",
 
-    'summary': "Fully functioning Nordic Payroll Engine.",
+    'summary': "Fully functioning Nordic Payroll Engine with PDF Reporting.",
 
     'description': """
 Custom Nordic Payroll system including:
 - Payslips management
-- Salary Rule engine
-- Nordic Structures
+- Python-based Salary Rule engine
+- Nordic Employee Extensions (Wage, Tax, Pension)
+- QWeb PDF Payslip Reporting
     """,
 
     'author': "My Company",
     'website': "https://www.yourcompany.com",
 
     'category': 'Human Resources/Payroll',
-    'version': '0.1',
+    'version': '0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['hr', 'mail'],
+    'depends': ['hr', 'mail', 'auth_oauth', 'hr_expense', 'website_sale'],
 
     # always loaded
     'data': [
@@ -26,6 +27,10 @@ Custom Nordic Payroll system including:
         'data/ir_sequence_data.xml',
         'views/views.xml',
         'data/hr_payroll_data.xml',
+        'data/hr_payroll_rules.xml',
+        'data/sso_configuration.xml',
+        'data/hr_expense_data.xml',
+        'reports/report_payslip.xml',
     ],
     'installable': True,
     'application': True,

@@ -1,0 +1,15 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Azure AD OAuth Provider Template -->
+        <record id="provider_azure_ad" model="auth.oauth.provider">
+            <field name="name">Azure Active Directory (Eidsiva)</field>
+            <field name="auth_endpoint">https://login.microsoftonline.com/common/oauth2/v2.0/authorize</field>
+            <field name="validation_endpoint">https://graph.microsoft.com/oidc/userinfo</field>
+            <field name="scope">openid profile email</field>
+            <field name="client_id">PLACEHOLDER_CLIENT_ID</field>
+            <field name="body">Log in with corporate account</field>
+            <field name="enabled" eval="True"/>
+            <field name="css_class">fa fa-microsoft</field>
+        </record>
+    </data>
+</odoo>

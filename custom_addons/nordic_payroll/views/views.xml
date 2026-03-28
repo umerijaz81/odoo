@@ -128,47 +128,56 @@
       </field>
     </record>
 
-    <record id="view_nordic_payslip_form" model="ir.ui.view">
-      <field name="name">nordic.payslip.form</field>
+    <record id="view_nordic_payslip_form_v2" model="ir.ui.view">
+      <field name="name">nordic.payslip.form.v2</field>
       <field name="model">nordic.payslip</field>
+      <field name="priority">1</field>
       <field name="arch" type="xml">
         <form string="Payslip">
           <header>
             <button name="compute_sheet" string="Compute Sheet" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+            <button name="%(nordic_payroll.action_report_nordic_payslip)d" string="Print" type="action" invisible="state == 'draft'"/>
             <field name="state" widget="statusbar" statusbar_visible="draft,verify,done"/>
           </header>
           <sheet>
             <div class="oe_title">
+              <label for="name" class="oe_edit_only"/>
               <h1><field name="name"/></h1>
             </div>
             <group>
-              <group>
-                <field name="employee_id"/>
-                <field name="struct_id"/>
+              <group name="employee_details" string="Employee Details">
+                <field name="employee_id" widget="res_partner_many2one" options="{'no_create': True}"/>
+                <field name="struct_id" required="1"/>
               </group>
-              <group>
+              <group name="period_details" string="Period">
                 <field name="date_from"/>
                 <field name="date_to"/>
               </group>
             </group>
-            <group>
-                <group string="Totals">
-                    <field name="gross_amount"/>
-                    <field name="tax_amount"/>
-                    <field name="net_amount" class="oe_subtotal_footer_separator"/>
-                </group>
-            </group>
             <notebook>
-              <page string="Income Details" name="details">
-                <field name="line_ids">
-                  <list>
-                    <field name="sequence"/>
+              <page string="Salary Computation" name="salary_computation">
+                <field name="line_ids" readonly="1">
+                  <list string="Salary Lines" decoration-info="category == 'BASIC'" decoration-success="category == 'ALW'" decoration-danger="category == 'DED'">
+                    <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name"/>
                     <field name="category"/>
-                    <field name="amount"/>
+                    <field name="amount" sum="Total"/>
                   </list>
                 </field>
+                <group class="oe_subtotal_footer oe_right" name="salary_totals">
+                    <field name="gross_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="tax_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                        <label for="net_amount"/>
+                    </div>
+                    <field name="net_amount" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </group>
+              </page>
+              <page string="Other Info" name="other_info">
+                  <group>
+                      <field name="create_date" string="Generation Date" readonly="1"/>
+                  </group>
               </page>
             </notebook>
           </sheet>
@@ -191,7 +200,21 @@
     <record model="ir.actions.act_window" id="action_nordic_payslip">
       <field name="name">Payslips</field>
       <field name="res_model">nordic.payslip</field>
-      <field name="view_mode">kanban,list,form</field>
+      <field name="view_mode">list,kanban,form</field>
+    </record>
+
+    <record id="action_nordic_payslip_view_list" model="ir.actions.act_window.view">
+      <field name="sequence" eval="1"/>
+      <field name="view_mode">list</field>
+      <field name="view_id" ref="view_nordic_payslip_list"/>
+      <field name="act_window_id" ref="action_nordic_payslip"/>
+    </record>
+
+    <record id="action_nordic_payslip_view_form" model="ir.actions.act_window.view">
+      <field name="sequence" eval="2"/>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="view_nordic_payslip_form_v2"/>
+      <field name="act_window_id" ref="action_nordic_payslip"/>
     </record>
 
     <record model="ir.actions.act_window" id="action_nordic_salary_rule">
@@ -206,11 +229,89 @@
       <field name="view_mode">list,form</field>
     </record>
 
+    <!-- HR Employee Form Extension -->
+    <record id="view_employee_form_nordic_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.form.nordic.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Nordic Payroll" name="nordic_payroll">
+                    <group>
+                        <group string="Financials">
+                            <field name="nordic_ssn"/>
+                            <field name="nordic_wage"/>
+                            <field name="tax_table"/>
+                            <field name="tax_zone"/>
+                        </group>
+                        <group string="Configuration">
+                            <field name="pension_percentage" widget="percentage"/>
+                            <field name="wage_type"/>
+                            <field name="overtime_pct"/>
+                            <field name="pension_scheme_id"/>
+                            <field name="deduction_rules_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+
+    <!-- A-melding Views -->
+    <record id="view_nordic_a_melding_list" model="ir.ui.view">
+        <field name="name">nordic.a.melding.list</field>
+        <field name="model">nordic.a.melding</field>
+        <field name="arch" type="xml">
+            <list string="A-melding Reports">
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'accepted'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_nordic_a_melding_form" model="ir.ui.view">
+        <field name="name">nordic.a.melding.form</field>
+        <field name="model">nordic.a.melding</field>
+        <field name="arch" type="xml">
+            <form string="A-melding Report">
+                <header>
+                    <button name="action_generate_xml" string="Generate XML" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent,accepted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="xml_filename" invisible="1"/>
+                            <field name="xml_file" filename="xml_filename" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_nordic_a_melding" model="ir.actions.act_window">
+        <field name="name">A-melding Reports</field>
+        <field name="res_model">nordic.a.melding</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <!-- Menu Structure -->
     <menuitem name="Nordic Payroll" id="nordic_payroll_menu_root" web_icon="nordic_payroll,static/description/icon.png" sequence="10"/>
 
     <menuitem name="Dashboard" id="menu_nordic_dashboard" parent="nordic_payroll_menu_root" action="action_nordic_payslip_dashboard" sequence="1"/>
     <menuitem name="Payslips" id="menu_nordic_payslip" parent="nordic_payroll_menu_root" action="action_nordic_payslip" sequence="10"/>
+    <menuitem name="A-melding" id="menu_nordic_a_melding" parent="nordic_payroll_menu_root" action="action_nordic_a_melding" sequence="20"/>
     
     <menuitem name="Configuration" id="menu_nordic_config" parent="nordic_payroll_menu_root" sequence="100"/>
     <menuitem name="Salary Rules" id="menu_nordic_salary_rule" parent="menu_nordic_config" action="action_nordic_salary_rule" sequence="10"/>

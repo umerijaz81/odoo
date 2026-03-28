@@ -1,0 +1,24 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Norwegian Per-Diem (Statens satser) Baseline Examples -->
+        <record id="expense_product_per_diem_domestic" model="product.product">
+            <field name="name">Domestic Per-Diem (Norway)</field>
+            <field name="can_be_expensed" eval="True"/>
+            <field name="type">service</field>
+            <field name="list_price">872.0</field> <!-- Example 2024 rate for > 12h -->
+            <field name="standard_price">872.0</field>
+            <field name="default_code">DIETT_NO</field>
+            <field name="publish_date" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+        <record id="expense_product_mileage" model="product.product">
+            <field name="name">Mileage Reimbursement (Kjøregodtgjørelse)</field>
+            <field name="can_be_expensed" eval="True"/>
+            <field name="type">service</field>
+            <field name="list_price">1.0</field>
+            <field name="standard_price">1.0</field>
+            <field name="default_code">KILOMETER</field>
+            <field name="publish_date" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>

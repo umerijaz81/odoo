@@ -1,29 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!-- New Nordic Salary Rules using my custom engine -->
-        
+        <!-- Basic salary pulling from employee -->
         <record id="rule_basic_pay" model="nordic.salary.rule">
             <field name="name">Basic Salary</field>
             <field name="code">BASIC</field>
             <field name="category">BASIC</field>
-            <field name="amount_select">fix</field>
-            <field name="amount_fix">50000.0</field> <!-- Placeholder -->
+            <field name="amount_select">python</field>
+            <field name="amount_python_compute">result = employee.nordic_wage</field>
             <field name="sequence" eval="1"/>
         </record>
 
+        <!-- Pension (OTP) calculation: 2% (default) of BASIC -->
+        <record id="rule_pension_otp" model="nordic.salary.rule">
+            <field name="name">Pension (OTP/Deduction)</field>
+            <field name="code">PENSION</field>
+            <field name="category">DED</field>
+            <field name="amount_select">python</field>
+            <field name="amount_python_compute">
+# Standard 2% of BASIC
+basic = rules.get('BASIC', 0.0)
+rate = employee.pension_percentage or 2.0
+result = - (basic * (rate / 100.0))
+            </field>
+            <field name="sequence" eval="50"/>
+        </record>
+
+        <!-- Income Tax: Dynamic based on result of BASIC + PENSION -->
         <record id="rule_income_tax" model="nordic.salary.rule">
             <field name="name">Income Tax (Skatt)</field>
             <field name="code">TAX</field>
             <field name="category">DED</field>
-            <field name="amount_select">fix</field>
-            <field name="amount_fix">-15000.0</field> <!-- Placeholder -->
+            <field name="amount_select">python</field>
+            <field name="amount_python_compute">
+# Simplified tax on (Gross - Pension)
+gross = rules.get('BASIC', 0.0)
+pension = rules.get('PENSION', 0.0)
+taxable = gross + pension
+result = - (taxable * 0.25) # 25% flat tax for demo
+            </field>
             <field name="sequence" eval="100"/>
         </record>
 
         <record id="structure_nordic_base" model="nordic.payroll.structure">
-            <field name="name">Nordic Base Structure</field>
-            <field name="rule_ids" eval="[(6, 0, [ref('rule_basic_pay'), ref('rule_income_tax')])]"/>
+            <field name="name">Nordic Base Structure (Standard)</field>
+            <field name="rule_ids" eval="[(6, 0, [ref('rule_basic_pay'), ref('rule_pension_otp'), ref('rule_income_tax')])]"/>
         </record>
     </data>
 </odoo>

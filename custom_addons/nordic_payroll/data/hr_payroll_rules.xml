@@ -1,0 +1,48 @@
+<odoo>
+  <data noupdate="1">
+    <!-- BASIC Rule -->
+    <record id="rule_basic" model="nordic.salary.rule">
+      <field name="name">Basic Salary</field>
+      <field name="code">BASIC</field>
+      <field name="sequence">10</field>
+      <field name="category">BASIC</field>
+      <field name="amount_select">python</field>
+      <field name="amount_python_compute">result = employee.nordic_wage</field>
+    </record>
+
+    <!-- AGA (Employer Contribution) - Calculated for reporting, not deducted from employee -->
+    <record id="rule_aga_zone1" model="nordic.salary.rule">
+      <field name="name">Employer Contribution (AGA Zone 1)</field>
+      <field name="code">AGA_Z1</field>
+      <field name="sequence">100</field>
+      <field name="category">ALW</field> <!-- Hidden or special category in real app -->
+      <field name="amount_select">python</field>
+      <field name="amount_python_compute">
+# AGA Zone 1 is 14.1%
+if employee.tax_zone == '1':
+    result = rules['BASIC'] * 0.141
+else:
+    result = 0.0
+      </field>
+    </record>
+
+    <!-- Pension (OTP) Deduction -->
+    <record id="rule_pension_ded" model="nordic.salary.rule">
+      <field name="name">Pension Deduction (OTP)</field>
+      <field name="code">PENSION</field>
+      <field name="sequence">150</field>
+      <field name="category">DED</field>
+      <field name="amount_select">python</field>
+      <field name="amount_python_compute">
+# Standard deduction based on employee percentage
+result = - (rules['BASIC'] * (employee.pension_percentage / 100.0))
+      </field>
+    </record>
+
+    <!-- Standard Nordic Structure -->
+    <record id="structure_nordic_base" model="nordic.payroll.structure">
+      <field name="name">Standard Nordic Payroll Structure</field>
+      <field name="rule_ids" eval="[(6, 0, [ref('rule_basic'), ref('rule_aga_zone1'), ref('rule_pension_ded')])]"/>
+    </record>
+  </data>
+</odoo>
