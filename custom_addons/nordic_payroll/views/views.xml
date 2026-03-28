@@ -76,6 +76,8 @@
           <field name="code"/>
           <field name="category"/>
           <field name="amount_select"/>
+          <field name="write_uid" string="Last Updated By" optional="hide"/>
+          <field name="write_date" string="Last Updated On" optional="hide"/>
         </list>
       </field>
     </record>
@@ -86,6 +88,9 @@
       <field name="arch" type="xml">
         <form string="Salary Rule">
           <sheet>
+            <div class="alert alert-warning" role="status" invisible="amount_select != 'python'">
+              Python formulas run during payroll computation. Restrict edits to HR managers and review the tracked changes in the chatter before applying them in production.
+            </div>
             <group>
               <group>
                 <field name="name"/>
@@ -95,6 +100,8 @@
               <group>
                 <field name="sequence"/>
                 <field name="amount_select"/>
+                <field name="tax_code"/>
+                <field name="is_vacation_base"/>
               </group>
             </group>
             <notebook>
@@ -102,11 +109,23 @@
                 <group>
                   <field name="amount_fix" invisible="amount_select != 'fix'"/>
                   <field name="amount_percentage" invisible="amount_select != 'percentage'"/>
-                  <field name="amount_python_compute" invisible="amount_select != 'python'"/>
+                  <field name="amount_python_compute" widget="text" invisible="amount_select != 'python'"/>
+                </group>
+              </page>
+              <page string="Governance" name="governance">
+                <group>
+                  <field name="create_uid" string="Created By" readonly="1"/>
+                  <field name="create_date" string="Created On" readonly="1"/>
+                  <field name="write_uid" string="Last Updated By" readonly="1"/>
+                  <field name="write_date" string="Last Updated On" readonly="1"/>
                 </group>
               </page>
             </notebook>
           </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
+          </div>
         </form>
       </field>
     </record>
@@ -136,6 +155,10 @@
         <form string="Payslip">
           <header>
             <button name="compute_sheet" string="Compute Sheet" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+            <button name="action_submit_for_verification" string="Submit For Verification" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+            <button name="action_mark_done" string="Mark Done" type="object" class="oe_highlight" invisible="state != 'verify'"/>
+            <button name="action_cancel" string="Cancel" type="object" invisible="state not in ('draft', 'verify', 'done')"/>
+            <button name="action_reset_to_draft" string="Reset To Draft" type="object" invisible="state not in ('verify', 'cancel')"/>
             <button name="%(nordic_payroll.action_report_nordic_payslip)d" string="Print" type="action" invisible="state == 'draft'"/>
             <field name="state" widget="statusbar" statusbar_visible="draft,verify,done"/>
           </header>
@@ -148,10 +171,12 @@
               <group name="employee_details" string="Employee Details">
                 <field name="employee_id" widget="res_partner_many2one" options="{'no_create': True}"/>
                 <field name="struct_id" required="1"/>
+                <field name="run_number"/>
               </group>
               <group name="period_details" string="Period">
                 <field name="date_from"/>
                 <field name="date_to"/>
+                <field name="payment_date"/>
               </group>
             </group>
             <notebook>
@@ -162,6 +187,8 @@
                     <field name="code"/>
                     <field name="name"/>
                     <field name="category"/>
+                    <field name="tax_code"/>
+                    <field name="is_vacation_base"/>
                     <field name="amount" sum="Total"/>
                   </list>
                 </field>
@@ -172,6 +199,7 @@
                         <label for="net_amount"/>
                     </div>
                     <field name="net_amount" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="total_employer_cost" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="total_employer_cost == 0"/>
                 </group>
               </page>
               <page string="Other Info" name="other_info">
@@ -229,6 +257,80 @@
       <field name="view_mode">list,form</field>
     </record>
 
+    <record model="ir.ui.view" id="view_nordic_payroll_structure_list">
+      <field name="name">nordic.payroll.structure.list</field>
+      <field name="model">nordic.payroll.structure</field>
+      <field name="arch" type="xml">
+        <list string="Payroll Structures">
+          <field name="name"/>
+          <field name="approved_for_production" widget="boolean_toggle"/>
+          <field name="approved_by" optional="hide"/>
+          <field name="approved_on" optional="hide"/>
+          <field name="write_uid" string="Last Updated By" optional="hide"/>
+          <field name="write_date" string="Last Updated On" optional="hide"/>
+        </list>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_nordic_payroll_structure_form">
+      <field name="name">nordic.payroll.structure.form</field>
+      <field name="model">nordic.payroll.structure</field>
+      <field name="arch" type="xml">
+        <form string="Payroll Structure">
+          <header>
+            <button name="action_approve_for_production" string="Approve For Production" type="object" class="oe_highlight" invisible="approved_for_production"/>
+            <button name="action_revoke_production_approval" string="Revoke Approval" type="object" invisible="not approved_for_production"/>
+            <field name="approved_for_production" widget="boolean_toggle" readonly="1"/>
+          </header>
+          <sheet>
+            <div class="alert alert-info" role="status">
+              Only approved payroll structures should be used on non-draft payslips. Approval changes are recorded in the chatter below.
+            </div>
+            <group>
+              <group>
+                <field name="name"/>
+              </group>
+              <group>
+                <field name="approved_by" readonly="1"/>
+                <field name="approved_on" readonly="1"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Salary Rules" name="salary_rules">
+                <field name="rule_ids" widget="many2many_tags"/>
+              </page>
+              <page string="Governance" name="governance">
+                <group>
+                  <field name="create_uid" string="Created By" readonly="1"/>
+                  <field name="create_date" string="Created On" readonly="1"/>
+                  <field name="write_uid" string="Last Updated By" readonly="1"/>
+                  <field name="write_date" string="Last Updated On" readonly="1"/>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_nordic_payroll_structure_view_list" model="ir.actions.act_window.view">
+      <field name="sequence" eval="1"/>
+      <field name="view_mode">list</field>
+      <field name="view_id" ref="view_nordic_payroll_structure_list"/>
+      <field name="act_window_id" ref="action_nordic_payroll_structure"/>
+    </record>
+
+    <record id="action_nordic_payroll_structure_view_form" model="ir.actions.act_window.view">
+      <field name="sequence" eval="2"/>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="view_nordic_payroll_structure_form"/>
+      <field name="act_window_id" ref="action_nordic_payroll_structure"/>
+    </record>
+
     <!-- HR Employee Form Extension -->
     <record id="view_employee_form_nordic_payroll" model="ir.ui.view">
         <field name="name">hr.employee.form.nordic.payroll</field>
@@ -243,13 +345,24 @@
                             <field name="nordic_wage"/>
                             <field name="tax_table"/>
                             <field name="tax_zone"/>
+                            <field name="bank_account"/>
                         </group>
                         <group string="Configuration">
                             <field name="pension_percentage" widget="percentage"/>
+                            <field name="vacation_days_available"/>
+                            <field name="vacation_days_used"/>
                             <field name="wage_type"/>
                             <field name="overtime_pct"/>
                             <field name="pension_scheme_id"/>
                             <field name="deduction_rules_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="A-melding Employment">
+                          <field name="employment_identifier"/>
+                          <field name="employment_start_date"/>
+                          <field name="employment_end_date"/>
+                          <field name="position_percentage" widget="percentage"/>
+                          <field name="weekly_hours"/>
+                          <field name="working_hours_scheme"/>
                         </group>
                     </group>
                 </page>
@@ -265,8 +378,13 @@
         <field name="arch" type="xml">
             <list string="A-melding Reports">
                 <field name="name"/>
+          <field name="submission_type"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
+          <field name="submission_deadline"/>
+              <field name="transport_contract_status" optional="hide"/>
+          <field name="external_submission_id" optional="hide"/>
+          <field name="receipt_status" optional="hide"/>
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'accepted'"/>
             </list>
         </field>
@@ -279,23 +397,91 @@
             <form string="A-melding Report">
                 <header>
                     <button name="action_generate_xml" string="Generate XML" type="object" class="oe_highlight" invisible="state != 'draft'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent,accepted"/>
+            <button name="action_submit_to_altinn" string="Submit To Authority" type="object" class="oe_highlight" invisible="state != 'generated' or not altinn_transport_ready"/>
+            <button name="action_mark_sent" string="Mark Sent" type="object" class="oe_highlight" invisible="state != 'generated' or altinn_transport_ready"/>
+              <button name="action_poll_altinn_receipt" string="Poll Altinn Receipt" type="object" class="oe_highlight" invisible="state != 'sent' or not external_submission_id"/>
+              <button name="action_process_feedback_xml" string="Process A03 Feedback" type="object" class="oe_highlight" invisible="state != 'sent'"/>
+            <button name="action_reset_to_draft" string="Reset To Draft" type="object" invisible="state not in ('generated', 'rejected')"/>
+              <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent,accepted,rejected"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-info" role="status" invisible="transport_contract_status == 'legacy'">
+                      Official Skatteetaten delivery uses Maskinporten with scope skatteetaten:innrapporteringamelding, mandatory idempotency keys, application/json request bodies, and Dialogporten feedback flow.
+                    </div>
+                    <div class="alert alert-warning" role="status" invisible="transport_contract_status != 'legacy'">
+                      The company is using the generic legacy adapter for testing compatibility. This is not the official Skatteetaten integration profile.
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
                     </div>
                     <group>
                         <group>
+                        <field name="submission_type"/>
+                        <field name="amends_report_id" readonly="1" invisible="submission_type == 'ordinary'"/>
+                        <field name="replacement_for_reference" invisible="submission_type != 'replacement'"/>
+                        <field name="correction_for_reference" invisible="submission_type != 'correction'"/>
+                        <field name="late_submission_reason"/>
                             <field name="date_from"/>
                             <field name="date_to"/>
+                  <field name="submission_deadline" readonly="1"/>
+                  <field name="is_late_submission" readonly="1"/>
+                <field name="transport_contract_status" readonly="1"/>
+                <field name="generated_on" readonly="1"/>
+                <field name="sent_on" readonly="1"/>
                         </group>
                         <group>
+                        <field name="altinn_transport_ready" invisible="1"/>
+                        <field name="idempotency_key" readonly="1"/>
+                        <field name="external_submission_id" readonly="1"/>
+                        <field name="altinn_receipt_reference" readonly="1"/>
+                        <field name="dialogporten_dialog_id" readonly="1"/>
+                        <field name="dialogporten_message_id" readonly="1"/>
+                        <field name="receipt_status" readonly="1"/>
+                        <field name="receipt_polled_on" readonly="1"/>
                             <field name="xml_filename" invisible="1"/>
                             <field name="xml_file" filename="xml_filename" readonly="1"/>
+                  <field name="receipt_xml_filename" invisible="1"/>
+                  <field name="receipt_xml_file" filename="receipt_xml_filename" readonly="1"/>
+                <field name="feedback_processed_on" readonly="1"/>
+                <field name="feedback_reference"/>
                         </group>
                     </group>
+            <group>
+                        <field name="feedback_xml_filename" invisible="1"/>
+                        <field name="feedback_xml_file" filename="feedback_xml_filename"/>
+                      <field name="transport_contract_notes" readonly="1"/>
+                      <field name="transport_message" readonly="1"/>
+                        <field name="feedback_notes" placeholder="System-generated summary from the latest processed feedback..." readonly="1"/>
+            </group>
+                      <notebook>
+                        <page string="Feedback Messages" name="feedback_messages">
+                          <field name="feedback_line_ids" readonly="1">
+                            <list>
+                              <field name="severity"/>
+                              <field name="code"/>
+                              <field name="location"/>
+                              <field name="requires_correction"/>
+                              <field name="description"/>
+                            </list>
+                          </field>
+                        </page>
+                        <page string="Payment Details" name="payment_details">
+                          <field name="payment_line_ids" readonly="1">
+                            <list>
+                              <field name="payment_type"/>
+                              <field name="amount"/>
+                              <field name="account_number"/>
+                              <field name="kid"/>
+                              <field name="description"/>
+                            </list>
+                          </field>
+                        </page>
+                      </notebook>
                 </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
+          </div>
             </form>
         </field>
     </record>
@@ -306,16 +492,132 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- Menu Structure -->
-    <menuitem name="Nordic Payroll" id="nordic_payroll_menu_root" web_icon="nordic_payroll,static/description/icon.png" sequence="10"/>
+    <record id="view_res_config_settings_nordic_payroll" model="ir.ui.view">
+      <field name="name">res.config.settings.view.form.inherit.nordic.payroll</field>
+      <field name="model">res.config.settings</field>
+      <field name="priority" eval="90"/>
+      <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//form" position="inside">
+          <app data-string="Nordic Payroll" string="Nordic Payroll" name="nordic_payroll" groups="hr.group_hr_manager">
+            <block title="A-melding Transport" name="nordic_payroll_altinn_container">
+              <setting id="nordic_altinn_transport_enabled" help="Enable transport settings for Nordic payroll A-melding reports.">
+                <field name="altinn_transport_enabled"/>
+              </setting>
+              <setting id="nordic_a_melding_transport_profile" invisible="not altinn_transport_enabled" help="Choose between the official Maskinporten/Dialogporten contract and the legacy generic adapter used only for compatibility testing.">
+                <field name="a_melding_transport_profile"/>
+              </setting>
+              <setting id="nordic_altinn_environment" invisible="not altinn_transport_enabled" help="Choose whether submissions should use the sandbox or production transport configuration.">
+                <field name="altinn_environment"/>
+              </setting>
+              <setting id="nordic_a_melding_maskinporten_notice" invisible="not altinn_transport_enabled or a_melding_transport_profile != 'maskinporten_dialogporten'" help="Official Skatteetaten integration requires Maskinporten server-to-server OAuth2, scope skatteetaten:innrapporteringamelding, JSON request bodies, and Dialogporten feedback events.">
+                <div class="text-muted">
+                  Official integration uses Maskinporten with virksomhetssertifikat and Dialogporten feedback delivery. Resource should not be set for Skatteetaten APIs; audience remains unspecified.
+                </div>
+              </setting>
+              <setting id="nordic_maskinporten_transport_urls" invisible="not altinn_transport_enabled or a_melding_transport_profile != 'maskinporten_dialogporten'" help="Configure the official Maskinporten and Skatteetaten endpoints.">
+                <div class="content-group">
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Maskinporten Token URL</span>
+                    <field name="maskinporten_token_url" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Skatteetaten API Base URL</span>
+                    <field name="skatteetaten_api_base_url" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">REST Submission Path</span>
+                    <field name="skatteetaten_rest_submission_path" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Dialogporten Base URL</span>
+                    <field name="dialogporten_api_base_url" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Dialogporten Feedback Path</span>
+                    <field name="dialogporten_feedback_path_template" class="ms-2 oe_inline"/>
+                  </div>
+                </div>
+              </setting>
+              <setting id="nordic_maskinporten_credentials" invisible="not altinn_transport_enabled or a_melding_transport_profile != 'maskinporten_dialogporten'" help="Store the Maskinporten client metadata and signing key details used for server-to-server OAuth2.">
+                <div class="content-group">
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Client ID</span>
+                    <field name="maskinporten_client_id" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Scope</span>
+                    <field name="maskinporten_scope" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Issuer</span>
+                    <field name="maskinporten_issuer" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Key ID</span>
+                    <field name="maskinporten_private_key_id" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="mt-2">
+                    <field name="maskinporten_private_key" password="True" placeholder="PEM private key used to sign the Maskinporten client assertion"/>
+                  </div>
+                </div>
+              </setting>
+              <setting id="nordic_altinn_transport_urls" invisible="not altinn_transport_enabled or a_melding_transport_profile != 'generic_legacy'" help="Configure the legacy generic adapter. This is retained for mocked compatibility testing only.">
+                <div class="content-group">
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">API Base URL</span>
+                    <field name="altinn_api_base_url" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Token URL</span>
+                    <field name="altinn_token_url" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">A02 Submission Path</span>
+                    <field name="altinn_a02_submission_path" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Receipt Path Template</span>
+                    <field name="altinn_receipt_path_template" class="ms-2 oe_inline"/>
+                  </div>
+                </div>
+              </setting>
+              <setting id="nordic_altinn_oauth_credentials" invisible="not altinn_transport_enabled or a_melding_transport_profile != 'generic_legacy'" help="Store the legacy adapter OAuth client credentials and optional subscription metadata.">
+                <div class="content-group">
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Client ID</span>
+                    <field name="altinn_client_id" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Client Secret</span>
+                    <field name="altinn_client_secret" password="True" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">OAuth Scope</span>
+                    <field name="altinn_scope" class="ms-2 oe_inline"/>
+                  </div>
+                  <div class="d-flex mt-1">
+                    <span class="flex-shrink-0 me-2">Subscription Key</span>
+                    <field name="altinn_subscription_key" password="True" class="ms-2 oe_inline"/>
+                  </div>
+                </div>
+              </setting>
+            </block>
+          </app>
+        </xpath>
+      </field>
+    </record>
 
-    <menuitem name="Dashboard" id="menu_nordic_dashboard" parent="nordic_payroll_menu_root" action="action_nordic_payslip_dashboard" sequence="1"/>
-    <menuitem name="Payslips" id="menu_nordic_payslip" parent="nordic_payroll_menu_root" action="action_nordic_payslip" sequence="10"/>
-    <menuitem name="A-melding" id="menu_nordic_a_melding" parent="nordic_payroll_menu_root" action="action_nordic_a_melding" sequence="20"/>
+    <!-- Menu Structure -->
+    <menuitem name="Nordic Payroll" id="nordic_payroll_menu_root" web_icon="nordic_payroll,static/description/icon.png" sequence="10" groups="hr.group_hr_user,hr.group_hr_manager"/>
+
+    <menuitem name="Dashboard" id="menu_nordic_dashboard" parent="nordic_payroll_menu_root" action="action_nordic_payslip_dashboard" sequence="1" groups="hr.group_hr_user,hr.group_hr_manager"/>
+    <menuitem name="Payslips" id="menu_nordic_payslip" parent="nordic_payroll_menu_root" action="action_nordic_payslip" sequence="10" groups="hr.group_hr_user,hr.group_hr_manager"/>
+    <menuitem name="A-melding" id="menu_nordic_a_melding" parent="nordic_payroll_menu_root" action="action_nordic_a_melding" sequence="20" groups="hr.group_hr_user,hr.group_hr_manager"/>
     
-    <menuitem name="Configuration" id="menu_nordic_config" parent="nordic_payroll_menu_root" sequence="100"/>
-    <menuitem name="Salary Rules" id="menu_nordic_salary_rule" parent="menu_nordic_config" action="action_nordic_salary_rule" sequence="10"/>
-    <menuitem name="Structures" id="menu_nordic_payroll_structure" parent="menu_nordic_config" action="action_nordic_payroll_structure" sequence="20"/>
+    <menuitem name="Configuration" id="menu_nordic_config" parent="nordic_payroll_menu_root" sequence="100" groups="hr.group_hr_manager"/>
+    <menuitem name="Salary Rules" id="menu_nordic_salary_rule" parent="menu_nordic_config" action="action_nordic_salary_rule" sequence="10" groups="hr.group_hr_manager"/>
+    <menuitem name="Structures" id="menu_nordic_payroll_structure" parent="menu_nordic_config" action="action_nordic_payroll_structure" sequence="20" groups="hr.group_hr_manager"/>
 
   </data>
 </odoo>

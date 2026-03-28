@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="aga_rate_zone_1" model="nordic.aga.rate">
+            <field name="zone">1</field>
+            <field name="rate">14.1</field>
+        </record>
+        <record id="aga_rate_zone_1a" model="nordic.aga.rate">
+            <field name="zone">1a</field>
+            <field name="rate">10.6</field>
+        </record>
+        <record id="aga_rate_zone_2" model="nordic.aga.rate">
+            <field name="zone">2</field>
+            <field name="rate">10.6</field>
+        </record>
+        <record id="aga_rate_zone_3" model="nordic.aga.rate">
+            <field name="zone">3</field>
+            <field name="rate">6.4</field>
+        </record>
+        <record id="aga_rate_zone_4" model="nordic.aga.rate">
+            <field name="zone">4</field>
+            <field name="rate">5.1</field>
+        </record>
+        <record id="aga_rate_zone_5" model="nordic.aga.rate">
+            <field name="zone">5</field>
+            <field name="rate">0.0</field>
+        </record>
+    </data>
+</odoo>

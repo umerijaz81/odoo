@@ -14,61 +14,123 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="text-center font-weight-bold" style="font-size: 24px; color: #1e3a8a; margin-bottom: 20px;">
-                            Nordic Payroll Payslip
-                        </div>
-                        
+                    <style>
+                        .lonn-header { border: 1px solid black; padding: 10px; margin-bottom: 20px; min-height: 100px; }
+                        .lonn-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        .lonn-table th { border-bottom: 2px solid black; border-top: 1px solid black; text-align: left; padding: 4px; font-size: 11px; }
+                        .lonn-table td { padding: 4px; font-size: 11px; border-bottom: 1px solid #eee; }
+                        .lonn-footer-grid { border: 2px solid black; width: 100%; margin-top: 30px; }
+                        .lonn-footer-grid td { border: 1px solid black; padding: 5px; font-size: 10px; text-align: right; width: 16.6%; }
+                        .lonn-label { font-weight: bold; display: block; font-size: 9px; text-align: left; text-transform: uppercase; }
+                        .net-amount-box { text-align: right; margin-top: 20px; font-size: 16px; font-weight: bold; }
+                    </style>
+                    <div class="page" style="font-family: sans-serif;">
+                        <!-- Header Section -->
                         <div class="row">
                             <div class="col-6">
-                                <strong>Employee:</strong> <span t-field="o.employee_id.name"/><br/>
-                                <strong>Date:</strong> <span t-field="o.date_from"/> to <span t-field="o.date_to"/>
+                                <div class="lonn-header">
+                                    <strong t-field="o.employee_id.name"/><br/>
+                                    <span t-field="o.employee_id.private_street"/><br/>
+                                    <span t-field="o.employee_id.private_zip"/> <span t-field="o.employee_id.private_city"/><br/>
+                                    <span t-field="o.employee_id.private_country_id.name"/>
+                                </div>
                             </div>
                             <div class="col-6 text-right">
-                                <strong>Reference:</strong> <span t-field="o.name"/><br/>
-                                <strong>Structure:</strong> <span t-field="o.struct_id.name"/>
+                                <span style="font-size: 20px; font-weight: bold;">Lønnslipp</span><br/>
+                                <div class="text-left" style="border: 1px solid black; padding: 5px; margin-top: 10px; font-size: 10px;">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Arbeidsgiver:</strong> <span t-field="o.env.company.name"/><br/>
+                                            <strong>Org.nr:</strong> <span t-field="o.env.company.company_registry"/><br/>
+                                            <strong>Avdeling:</strong> <span t-field="o.employee_id.department_id.name"/>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Kjørenr:</strong> <span t-field="o.run_number"/><br/>
+                                            <strong>Dato:</strong> <span t-field="o.payment_date"/><br/>
+                                            <strong>Ansatt:</strong> <span t-field="o.employee_id.id"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <table class="table table-sm mt32" style="border: 1px solid #e5e7eb;">
-                            <thead style="background-color: #f3f4f6;">
+                        <!-- Mid Metadata -->
+                        <div class="row mt-2" style="font-size: 10px;">
+                            <div class="col-3">
+                                <strong>Fødselsnr:</strong><br/><span t-field="o.employee_id.nordic_ssn"/>
+                            </div>
+                            <div class="col-3">
+                                <strong>Lønnskonto:</strong><br/><span t-field="o.employee_id.bank_account"/>
+                            </div>
+                            <div class="col-3">
+                                <strong>F.d.brukt:</strong><br/><span t-field="o.employee_id.vacation_days_used"/>
+                            </div>
+                            <div class="col-3">
+                                <strong>F.d.tilgode:</strong><br/><span t-field="o.employee_id.vacation_days_available"/>
+                            </div>
+                        </div>
+
+                        <!-- Main Table -->
+                        <table class="lonn-table">
+                            <thead>
                                 <tr>
-                                    <th>Code</th>
-                                    <th>Description</th>
-                                    <th class="text-right">Amount</th>
+                                    <th>Lønnsart</th>
+                                    <th>Tekst</th>
+                                    <th class="text-right">Antall</th>
+                                    <th class="text-right">Sats</th>
+                                    <th class="text-center">FP</th>
+                                    <th class="text-center">Skatt</th>
+                                    <th class="text-right">Beløp</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="o.line_ids" t-as="line">
-                                    <tr t-att-style="'font-weight: bold;' if line.category == 'NET' else ''">
+                                    <tr t-if="line.category != 'COMP'">
                                         <td><span t-field="line.code"/></td>
                                         <td><span t-field="line.name"/></td>
+                                        <td class="text-right"></td> <!-- Optional metadata -->
+                                        <td class="text-right"></td> <!-- Optional metadata -->
+                                        <td class="text-center">
+                                            <span t-if="line.is_vacation_base">X</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-field="line.tax_code"/>
+                                        </td>
                                         <td class="text-right">
-                                            <span t-esc="line.amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/>
+                                            <span t-esc="abs(line.amount)" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/>
+                                            <span t-if="line.amount &lt; 0">-</span>
                                         </td>
                                     </tr>
                                 </t>
                             </tbody>
                         </table>
 
-                        <div class="row mt32">
-                            <div class="col-7"></div>
-                            <div class="col-5">
-                                <table class="table table-sm">
-                                    <tr class="border-black">
-                                        <td><strong>Gross Total</strong></td>
-                                        <td class="text-right"><span t-field="o.gross_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Tax Total</strong></td>
-                                        <td class="text-right"><span t-field="o.tax_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
-                                    </tr>
-                                    <tr class="border-black o_total">
-                                        <td><strong>NET PAY</strong></td>
-                                        <td class="text-right"><strong><span t-field="o.net_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></strong></td>
-                                    </tr>
-                                </table>
-                            </div>
+                        <div class="net-amount-box">
+                            Netto utbetalt: <span t-field="o.net_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/>
+                        </div>
+
+                        <!-- Real Lønnslipp Footer Grid -->
+                        <table class="lonn-footer-grid">
+                            <tr>
+                                <td><span class="lonn-label">Lønn</span><span t-esc="o.gross_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                <td><span class="lonn-label">Ord.timer</span>0,00</td>
+                                <td><span class="lonn-label">Overt.t</span>0,00</td>
+                                <td><span class="lonn-label">Sykepenger</span>0,00</td>
+                                <td><span class="lonn-label">Pensjon</span><span t-esc="abs(sum(l.amount for l in o.line_ids if l.code == 'PENSION'))" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                <td><span class="lonn-label">FP Grlag</span><span t-esc="sum(l.amount for l in o.line_ids if l.is_vacation_base)" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                            </tr>
+                            <tr>
+                                <td><span class="lonn-label">Skatt</span><span t-esc="o.tax_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                <td><span class="lonn-label">Trekk</span><span t-esc="abs(sum(l.amount for l in o.line_ids if l.category == 'DED'))" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                <td><span class="lonn-label">Forsk.tr</span><span t-esc="o.tax_amount" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                <td><span class="lonn-label">Opptj f.p</span>0,00</td>
+                                <td><span class="lonn-label">Feriep tilg</span>0,00</td>
+                                <td><span class="lonn-label">Rest fri</span>0,00</td>
+                            </tr>
+                        </table>
+
+                        <div class="mt-4" style="font-size: 8px; font-style: italic;">
+                            * Påvirker ikke beløp til utbetaling.
                         </div>
                     </div>
                 </t>

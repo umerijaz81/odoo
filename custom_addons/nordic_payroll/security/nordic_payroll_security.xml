@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="rule_nordic_payslip_hr_user_company" model="ir.rule">
+            <field name="name">Nordic Payslip HR User Company Scope</field>
+            <field name="model_id" ref="model_nordic_payslip"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_nordic_payslip_hr_manager_company" model="ir.rule">
+            <field name="name">Nordic Payslip HR Manager Company Scope</field>
+            <field name="model_id" ref="model_nordic_payslip"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_nordic_payslip_line_hr_user_company" model="ir.rule">
+            <field name="name">Nordic Payslip Line HR User Company Scope</field>
+            <field name="model_id" ref="model_nordic_payslip_line"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+            <field name="domain_force">['|', ('slip_id.company_id', '=', False), ('slip_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_nordic_payslip_line_hr_manager_company" model="ir.rule">
+            <field name="name">Nordic Payslip Line HR Manager Company Scope</field>
+            <field name="model_id" ref="model_nordic_payslip_line"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field name="domain_force">['|', ('slip_id.company_id', '=', False), ('slip_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_nordic_a_melding_hr_user_company" model="ir.rule">
+            <field name="name">Nordic A-melding HR User Company Scope</field>
+            <field name="model_id" ref="model_nordic_a_melding"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_nordic_a_melding_hr_manager_company" model="ir.rule">
+            <field name="name">Nordic A-melding HR Manager Company Scope</field>
+            <field name="model_id" ref="model_nordic_a_melding"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

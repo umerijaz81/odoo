@@ -14,9 +14,10 @@ Custom Nordic Payroll system including:
 
     'author': "My Company",
     'website': "https://www.yourcompany.com",
+    'license': 'LGPL-3',
 
     'category': 'Human Resources/Payroll',
-    'version': '0.2',
+    'version': '0.4',
 
     # any module necessary for this one to work correctly
     'depends': ['hr', 'mail', 'auth_oauth', 'hr_expense', 'website_sale'],
@@ -24,8 +25,11 @@ Custom Nordic Payroll system including:
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'security/nordic_payroll_security.xml',
         'data/ir_sequence_data.xml',
         'views/views.xml',
+        'data/a_melding_code_data.xml',
+        'data/hr_aga_rate_data.xml',
         'data/hr_payroll_data.xml',
         'data/hr_payroll_rules.xml',
         'data/sso_configuration.xml',

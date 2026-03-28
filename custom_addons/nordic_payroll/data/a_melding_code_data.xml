@@ -1,0 +1,190 @@
+<odoo>
+    <data noupdate="1">
+        <record id="a_melding_map_basic_fixed_salary" model="nordic.a.melding.code.map">
+            <field name="sequence">10</field>
+            <field name="internal_code">BASIC</field>
+            <field name="edag_code">fixedSalary</field>
+            <field name="official_name">Fixed salary</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">BASIC</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/fixed-salary/</field>
+        </record>
+
+        <record id="a_melding_map_pension_contribution" model="nordic.a.melding.code.map">
+            <field name="sequence">20</field>
+            <field name="internal_code">PENSION</field>
+            <field name="edag_code">pensionContribution</field>
+            <field name="official_name">Pension contribution</field>
+            <field name="line_kind">deduction</field>
+            <field name="expected_category">DED</field>
+            <field name="sign_expectation">negative</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/employers-contributions-to-foreign-pension-schemes/</field>
+        </record>
+
+        <record id="a_melding_map_withholding_tax" model="nordic.a.melding.code.map">
+            <field name="sequence">30</field>
+            <field name="internal_code">TAX</field>
+            <field name="edag_code">withholdingTax</field>
+            <field name="official_name">Withholding tax deduction</field>
+            <field name="line_kind">deduction</field>
+            <field name="expected_category">DED</field>
+            <field name="sign_expectation">negative</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/deadlines-and-payment/</field>
+        </record>
+
+        <record id="a_melding_map_employer_contribution" model="nordic.a.melding.code.map">
+            <field name="sequence">40</field>
+            <field name="internal_code">AGA</field>
+            <field name="edag_code">employersNationalInsuranceContribution</field>
+            <field name="official_name">Employer's national insurance contributions</field>
+            <field name="line_kind">employer_contribution</field>
+            <field name="expected_category">COMP</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/employers-national-insurance-contributions/</field>
+        </record>
+
+        <record id="a_melding_map_overtime_pay" model="nordic.a.melding.code.map">
+            <field name="sequence">50</field>
+            <field name="internal_code">OVERTIME</field>
+            <field name="edag_code">overtimePay</field>
+            <field name="official_name">Overtime payment</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/overtime-pay/</field>
+        </record>
+
+        <record id="a_melding_map_holiday_pay" model="nordic.a.melding.code.map">
+            <field name="sequence">60</field>
+            <field name="internal_code">HOLIDAYPAY</field>
+            <field name="edag_code">holidayPay</field>
+            <field name="official_name">Holiday pay</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/holiday-pay/</field>
+        </record>
+
+        <record id="a_melding_map_bonus" model="nordic.a.melding.code.map">
+            <field name="sequence">70</field>
+            <field name="internal_code">BONUS</field>
+            <field name="edag_code">bonus</field>
+            <field name="official_name">Bonus</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/bonus/</field>
+        </record>
+
+        <record id="a_melding_map_per_diem" model="nordic.a.melding.code.map">
+            <field name="sequence">80</field>
+            <field name="internal_code">EXP_PERDIEM</field>
+            <field name="edag_code">perDiemAllowance</field>
+            <field name="official_name">Per diem allowance</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/expense-allowance/</field>
+        </record>
+
+        <record id="a_melding_map_mileage_allowance" model="nordic.a.melding.code.map">
+            <field name="sequence">90</field>
+            <field name="internal_code">EXP_MILEAGE</field>
+            <field name="edag_code">mileageAllowance</field>
+            <field name="official_name">Mileage allowance</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/car-allowance/</field>
+        </record>
+
+        <record id="a_melding_map_expense_reimbursement" model="nordic.a.melding.code.map">
+            <field name="sequence">100</field>
+            <field name="internal_code">EXP_REIMB</field>
+            <field name="edag_code">expenseReimbursement</field>
+            <field name="official_name">Expense reimbursement</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/expense-allowance/</field>
+        </record>
+
+        <record id="a_melding_map_sick_pay" model="nordic.a.melding.code.map">
+            <field name="sequence">110</field>
+            <field name="internal_code">SICKPAY</field>
+            <field name="edag_code">sickPay</field>
+            <field name="official_name">Sick pay</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_parental_pay" model="nordic.a.melding.code.map">
+            <field name="sequence">120</field>
+            <field name="internal_code">PARENTALPAY</field>
+            <field name="edag_code">parentalPay</field>
+            <field name="official_name">Parental pay</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_care_pay" model="nordic.a.melding.code.map">
+            <field name="sequence">130</field>
+            <field name="internal_code">CAREPAY</field>
+            <field name="edag_code">carePay</field>
+            <field name="official_name">Care pay</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_shift_allowance" model="nordic.a.melding.code.map">
+            <field name="sequence">140</field>
+            <field name="internal_code">SHIFTADD</field>
+            <field name="edag_code">shiftAllowance</field>
+            <field name="official_name">Shift allowance</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_offshore_allowance" model="nordic.a.melding.code.map">
+            <field name="sequence">150</field>
+            <field name="internal_code">OFFSHOREADD</field>
+            <field name="edag_code">offshoreAllowance</field>
+            <field name="official_name">Offshore allowance</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_company_car_benefit" model="nordic.a.melding.code.map">
+            <field name="sequence">160</field>
+            <field name="internal_code">CARBENEFIT</field>
+            <field name="edag_code">companyCarBenefit</field>
+            <field name="official_name">Company car benefit</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+
+        <record id="a_melding_map_electronic_communication_benefit" model="nordic.a.melding.code.map">
+            <field name="sequence">170</field>
+            <field name="internal_code">EKOMBENEFIT</field>
+            <field name="edag_code">electronicCommunicationBenefit</field>
+            <field name="official_name">Electronic communication benefit</field>
+            <field name="line_kind">income</field>
+            <field name="expected_category">ALW</field>
+            <field name="sign_expectation">positive</field>
+            <field name="source_url">https://www.skatteetaten.no/en/business-and-organisation/employer/the-a-melding/the-a-melding-guide/salary-and-benefits/overview-of-salary-and-other-benefits/</field>
+        </record>
+    </data>
+</odoo>
